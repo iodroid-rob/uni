@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vanguard Academy | Elite Preparatory Institute</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Playfair Display for classic editorial headings, Inter for high-performance UI readability -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        academy: {
+                            deep: '#06110D',      // Rich Luxury Dark Green Velvet
+                            leaf: '#0F261D',      // Deep Forest Green
+                            gold: '#C5A880',      // Classic Editorial Brass Gold
+                            goldDark: '#9C7E55',  // Darker shadow gold
+                            cream: '#FCFBF9',     // Pristine High-End Parchment
+                            stone: '#EFECE6',     // Structured stone beige
+                            charcoal: '#111513'   // Sharp accent black
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'premium': '0 30px 60px -15px rgba(6, 17, 13, 0.08)',
+                        'gold-glow': '0 0 25px rgba(197, 168, 128, 0.25)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #FCFBF9;
+            color: #111513;
+            overflow-x: hidden;
+        }
+
+        /* Rolling Ball Container */
+        #rolling-ball-container {
+            position: fixed;
+            right: 2rem;
+            bottom: 2rem;
+            z-index: 45;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+            transition: right 1s cubic-bezier(0.77, 0, 0.175, 1), bottom 1s cubic-bezier(0.77, 0, 0.175, 1), transform 1s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+
+        #rolling-ball {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #0F261D, #06110D);
+            border: 2px solid #C5A880;
+            box-shadow: 0 0 20px rgba(197, 168, 128, 0.4);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: width 0.1s ease-out, height 0.1s ease-out, border-color 0.8s ease;
+        }
+
+        /* Subtle gold grid cross lines inside the ball to emphasize its rolling rotation */
+        #rolling-ball::after {
+            content: '';
+            position: absolute;
+            width: 90%;
+            height: 1px;
+            background: rgba(197, 168, 128, 0.45);
+            top: 50%;
+            left: 5%;
+            transform: translateY(-50%);
+        }
+        #rolling-ball::before {
+            content: '';
+            position: absolute;
+            width: 1px;
+            height: 90%;
+            background: rgba(197, 168, 128, 0.45);
+            left: 50%;
+            top: 5%;
+            transform: translateX(-50%);
+        }
+
+        /* Expanded Overlay State */
+        #rolling-ball-container.expanded {
+            right: 50% !important;
+            bottom: 50% !important;
+            transform: translate(50%, 50%) !important;
+            z-index: 90;
+        }
+
+        #rolling-ball-container.expanded #rolling-ball {
+            width: 320vmax !important;
+            height: 320vmax !important;
+            cursor: default;
+            background: #06110D;
+            border-color: transparent;
+            box-shadow: none;
+            transition: width 1.2s cubic-bezier(0.77, 0, 0.175, 1), height 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+
+        #rolling-ball-container.expanded #rolling-ball::after,
+        #rolling-ball-container.expanded #rolling-ball::before {
+            display: none;
+        }
+
+        /* Overlay Content Container */
+        #sanctum-content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 95;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+        }
+
+        #rolling-ball-container.expanded ~ #sanctum-content {
+            opacity: 1;
+            pointer-events: auto;
+            transition-delay: 0.6s;
+        }
+
+        /* Smooth scroll tracker progress bar */
+        #scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(to right, #C5A880, #0F261D);
+            z-index: 100;
+            width: 0%;
+            transition: width 0.1s ease-out;
+        }
+
+        /* Floating luxury scroll elements */
+        .parallax-scroll-element {
+            transition: transform 0.15s cubic-bezier(0.1, 0.8, 0.2, 1);
+            will-change: transform;
+        }
+
+        /* 3D Interactive Card Parallax */
+        .parallax-card {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* CSS Reveal Animation Triggers (scroll-based) */
+        .reveal-element {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .reveal-element.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Elegant micro-interactions */
+        .premium-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .premium-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: all 0.6s ease;
+        }
+        .premium-btn:hover::before {
+            left: 100%;
+        }
+
+        .grid-bg {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(156, 126, 85, 0.04) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(156, 126, 85, 0.04) 1px, transparent 1px);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased bg-academy-cream text-academy-charcoal relative">
+
+    <!-- Scroll Progress Indicator -->
+    <div id="scroll-progress"></div>
+
+    <!-- Rolling Ball Side Indicator & Fullscreen Overlay container -->
+    <div id="rolling-ball-container">
+        <div id="rolling-ball" title="Admissions Sanctum Connection"></div>
+    </div>
+
+    <!-- Hidden Sanctum Centerpiece Content -->
+    <div id="sanctum-content">
+        <div class="flex flex-col items-center justify-center space-y-6">
+            <div class="w-16 h-16 bg-transparent border border-academy-gold/40 flex items-center justify-center text-academy-gold rounded-sm shadow-gold-glow">
+                <span class="font-serif font-bold text-2xl">V</span>
+            </div>
+            <div>
+                <h2 class="font-serif text-3xl md:text-4xl text-academy-cream tracking-wider font-semibold uppercase">Vanguard Prep</h2>
+                <span class="block text-[10px] font-bold uppercase tracking-[0.3em] text-academy-gold mt-2">Sovereign Mind Sanctuary Portal</span>
+            </div>
+            <p class="text-xs font-light text-academy-cream/60 leading-relaxed max-w-sm">
+                You have reached the edge of the core registry matrix. The Michaelmas administrative cycle awaits your legacy credentials.
+            </p>
+            <button onclick="collapseSanctum()" class="premium-btn px-8 py-3.5 bg-academy-gold text-academy-deep hover:bg-academy-cream hover:text-academy-deep transition-all font-semibold uppercase tracking-widest text-[10px] border border-academy-gold shadow-gold-glow">
+                Go back to website
+            </button>
+        </div>
+    </div>
+
+    <div class="parallax-scroll-element absolute left-6 top-[15%] w-32 h-32 pointer-events-none opacity-[0.18] hidden xl:block z-0" data-speed="0.12" data-rotation="0.04">
+        <svg viewBox="0 0 100 100" class="w-full h-full stroke-academy-gold fill-none" stroke-width="1">
+            <circle cx="50" cy="50" r="40" />
+            <circle cx="50" cy="50" r="30" stroke-dasharray="4 4" />
+            <line x1="10" y1="50" x2="90" y2="50" />
+            <line x1="50" y1="10" x2="50" y2="90" />
+        </svg>
+    </div>
+
+    <div class="parallax-scroll-element absolute right-8 top-[45%] w-44 h-44 pointer-events-none opacity-[0.15] hidden xl:block z-0" data-speed="-0.08" data-rotation="-0.06">
+        <svg viewBox="0 0 120 120" class="w-full h-full stroke-academy-gold fill-none" stroke-width="0.75">
+            <rect x="20" y="20" width="80" height="80" transform="rotate(45 60 60)" />
+            <circle cx="60" cy="60" r="35" />
+            <circle cx="60" cy="60" r="5" class="fill-academy-gold" />
+        </svg>
+    </div>
+
+    <div class="parallax-scroll-element absolute left-12 top-[75%] w-36 h-36 pointer-events-none opacity-[0.12] hidden xl:block z-0" data-speed="0.06" data-rotation="0.03">
+        <svg viewBox="0 0 100 100" class="w-full h-full stroke-academy-gold fill-none" stroke-width="0.8">
+            <polygon points="50,15 90,85 10,85" />
+            <circle cx="50" cy="55" r="20" />
+        </svg>
+    </div>
+
+    <!-- Exclusive Global Banner -->
+    <div class="w-full bg-academy-deep text-academy-gold text-[10px] font-semibold uppercase tracking-[0.3em] py-3 px-6 text-center border-b border-academy-gold/20 relative z-50">
+        <span class="inline-block animate-pulse mr-2 h-1.5 w-1.5 bg-academy-gold rounded-full"></span> 
+        Registrations for the Michaelmas Session are open to international legacy candidates.
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="w-full py-6 px-6 lg:px-16 flex justify-between items-center border-b border-academy-stone/60 sticky top-0 bg-academy-cream/90 backdrop-blur-md z-40">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-academy-deep border border-academy-gold flex items-center justify-center text-academy-gold rounded-sm shadow-premium">
+                <span class="font-serif font-bold text-xl">V</span>
+            </div>
+            <div>
+                <span class="block font-serif text-xl tracking-wider font-semibold text-academy-deep">VANGUARD INST.</span>
+                <span class="block text-[8px] font-bold uppercase tracking-[0.25em] text-academy-gold">Academy of Sciences & Letters</span>
+            </div>
+        </div>
+
+        <nav class="hidden lg:flex gap-12 text-xs uppercase tracking-[0.2em] font-bold text-academy-deep/80">
+            <a href="#philosophy" class="hover:text-academy-gold transition-colors relative group py-2">
+                Philosophy
+                <span class="absolute bottom-0 left-0 w-0 h-[1.5px] bg-academy-gold transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <a href="#timetable-section" class="hover:text-academy-gold transition-colors relative group py-2">
+                Student Life Matrix
+                <span class="absolute bottom-0 left-0 w-0 h-[1.5px] bg-academy-gold transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <a href="#assessment-section" class="hover:text-academy-gold transition-colors relative group py-2">
+                Evaluation Panel
+                <span class="absolute bottom-0 left-0 w-0 h-[1.5px] bg-academy-gold transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <a href="#tuition-section" class="hover:text-academy-gold transition-colors relative group py-2">
+                Investment Structure
+                <span class="absolute bottom-0 left-0 w-0 h-[1.5px] bg-academy-gold transition-all duration-300 group-hover:w-full"></span>
+            </a>
+        </nav>
+
+        <a href="#assessment-section" class="premium-btn px-6 py-3 bg-academy-deep text-academy-cream hover:bg-academy-gold hover:text-academy-deep border border-academy-deep transition-all text-xs uppercase tracking-widest font-bold shadow-premium">
+            Appraisal Portal
+        </a>
+    </header>
+
+    <section class="relative py-20 lg:py-32 px-6 lg:px-16 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+        <!-- Interactive background grid -->
+        <div class="absolute inset-0 grid-bg pointer-events-none"></div>
+
+        <!-- Text Content Column -->
+        <div class="lg:col-span-6 space-y-8 relative z-10 reveal-element" id="hero-text">
+            <span class="inline-block bg-academy-deep/5 text-academy-leaf text-xs font-bold uppercase tracking-[0.3em] px-4 py-2 border border-academy-deep/10 rounded-sm">
+                Cohort of 2026 // Registry Open
+            </span>
+            <h1 class="text-5xl md:text-7xl font-serif text-academy-deep leading-[1.05] tracking-tight">
+                Sculpting the <span class="italic font-light text-academy-goldDark">True Sovereign</span> Mind.
+            </h1>
+            <p class="text-base sm:text-lg font-light text-academy-charcoal/80 leading-relaxed max-w-xl">
+                Vanguard rejects classical mass schooling structures in favor of an elite, high-performance model pairing high-order technical synthesis with deep classical letters. We do not teach skills; we forge future-defining capabilities.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                <a href="#timetable-section" class="premium-btn px-8 py-4 bg-academy-deep text-academy-cream hover:bg-academy-gold hover:text-academy-deep transition-all font-semibold uppercase tracking-widest text-xs text-center border border-academy-deep shadow-premium">
+                    Interactive Life Matrix
+                </a>
+                <a href="#assessment-section" class="premium-btn px-8 py-4 bg-transparent border border-academy-deep/30 text-academy-deep hover:border-academy-deep transition-all font-semibold uppercase tracking-widest text-xs text-center">
+                    Private Admissions Exam
+                </a>
+            </div>
+        </div>
+
+        <!-- Master Visual Frame (Solves the broken image blank space issue in image_084779.png) -->
+        <div class="lg:col-span-6 flex justify-center relative z-10 reveal-element" id="hero-media">
+            <div id="tilt-box" class="parallax-card relative w-full max-w-lg bg-academy-leaf border-2 border-academy-gold/40 p-3 shadow-premium rounded-t-full overflow-hidden min-h-[540px]">
+                
+                <!-- High-End Fallback Decorative Screen (Acts as an architectural backdrop behind the image) -->
+                <div class="absolute inset-3 rounded-t-full bg-gradient-to-b from-academy-deep to-academy-leaf flex flex-col items-center justify-center p-8 text-center border border-academy-gold/20 z-0">
+                    <div class="w-16 h-16 rounded-full border border-academy-gold/40 flex items-center justify-center mb-4 text-academy-gold opacity-60">
+                        <i class="fa-solid fa-building-columns text-2xl"></i>
+                    </div>
+                    <span class="font-serif italic text-lg text-academy-gold/80 block">Vanguard Academy</span>
+                    <span class="text-[9px] uppercase tracking-widest text-academy-cream/50 mt-1 block">Est. 2026</span>
+                    <!-- Beautiful SVG Geometric watermark in background of fallback card -->
+                    <svg viewBox="0 0 100 100" class="w-32 h-32 stroke-academy-gold/10 fill-none mt-6" stroke-width="0.5">
+                        <circle cx="50" cy="50" r="45"/>
+                        <circle cx="50" cy="50" r="30"/>
+                        <polygon points="50,5 95,80 5,80" />
+                    </svg>
+                </div>
+
+                <div class="absolute top-8 right-8 bg-academy-deep text-academy-gold px-4 py-3 border border-academy-gold/30 rounded shadow-gold-glow z-20 text-center">
+                    <span class="block text-2xl font-serif font-bold">1:4</span>
+                    <span class="block text-[8px] font-bold uppercase tracking-wider text-academy-cream/80">Mentor Ratio</span>
+                </div>
+                
+                <!-- Highly reliable classical university architecture image with robust loading safety -->
+                <img src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1000&q=80" 
+                     onerror="this.style.display='none';" 
+                     alt="Vanguard Scholars" 
+                     class="relative w-full h-[520px] object-cover rounded-t-full filter brightness-90 contrast-105 z-10 block transition-opacity duration-500">
+            </div>
+        </div>
+    </section>
+
+    <!-- Exclusive Core Philosophy Row -->
+    <section id="philosophy" class="py-24 bg-academy-deep text-academy-cream w-full border-y border-academy-gold/20 relative overflow-hidden">
+        <div class="absolute inset-0 grid-bg opacity-[0.02]"></div>
+        <div class="max-w-7xl mx-auto px-6 lg:px-16 grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
+            
+            <div class="reveal-element space-y-4 border-l-2 border-academy-gold pl-6 py-2 hover:border-white transition-all group">
+                <span class="text-academy-gold font-serif text-lg italic block transform group-hover:translate-x-1 transition-transform">I // Socratic Dialectics</span>
+                <h3 class="text-xl font-serif font-bold">Active Syntactic Defense</h3>
+                <p class="text-sm font-light text-academy-cream/70 leading-relaxed">
+                    We replace lectures with rigorous, high-speed Socratic inquiry. Scholars defend theses, validate sources, and formulate original proofs under the direction of active mentors.
+                </p>
+            </div>
+
+            <div class="reveal-element space-y-4 border-l-2 border-academy-gold pl-6 py-2 hover:border-white transition-all group">
+                <span class="text-academy-gold font-serif text-lg italic block transform group-hover:translate-x-1 transition-transform">II // High Engineering</span>
+                <h3 class="text-xl font-serif font-bold">Applied Innovation Sandbox</h3>
+                <p class="text-sm font-light text-academy-cream/70 leading-relaxed">
+                    Scholars construct physical machine learning hardware, audit systems telemetry, and build distributed software engines inside our independent hardware foundry.
+                </p>
+            </div>
+
+            <div class="reveal-element space-y-4 border-l-2 border-academy-gold pl-6 py-2 hover:border-white transition-all group">
+                <span class="text-academy-gold font-serif text-lg italic block transform group-hover:translate-x-1 transition-transform">III // Sovereign Ventures</span>
+                <h3 class="text-xl font-serif font-bold">Incubation Office</h3>
+                <p class="text-sm font-light text-academy-cream/70 leading-relaxed">
+                    All graduating candidates prototype active platforms, draft venture blueprints, and pitch operational solutions directly to institutional investment syndicates.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="timetable-section" class="py-24 max-w-7xl mx-auto px-6 lg:px-16">
+        <div class="text-center max-w-2xl mx-auto mb-16 reveal-element">
+            <span class="text-academy-goldDark font-sans uppercase tracking-[0.25em] text-xs font-bold">Bespoke Operations</span>
+            <h2 class="text-4xl md:text-5xl font-serif mt-4 text-academy-deep leading-tight">Student Day-to-Day Matrix</h2>
+            <p class="text-sm text-academy-charcoal/70 mt-3 font-light">Toggle operational focus tracks to observe how a customized elite weekly curriculum schedules morph, scale, and integrate dynamically.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            
+            <!-- Matrix Controls Panel -->
+            <div class="lg:col-span-4 bg-white border border-academy-stone p-6 sm:p-8 rounded-xl shadow-premium space-y-6 reveal-element">
+                <div>
+                    <h3 class="font-serif text-lg font-bold text-academy-deep border-b border-academy-stone pb-3">Operational Directives</h3>
+                </div>
+
+                <!-- Select Focus Track (Smooth Tab Controls) -->
+                <div class="space-y-3">
+                    <label class="block text-[10px] uppercase font-bold tracking-widest text-academy-charcoal/80">Focus Path</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="setMatrixTrack('stem')" id="tab-stem" class="p-4 border-2 border-academy-deep bg-academy-deep text-academy-cream text-left transition-all rounded flex flex-col justify-between h-28 focus:outline-none shadow-premium">
+                            <i class="fa-solid fa-microchip text-lg"></i>
+                            <span class="text-xs uppercase font-bold tracking-wider block">STEM & AI</span>
+                        </button>
+                        <button onclick="setMatrixTrack('humanities')" id="tab-humanities" class="p-4 border border-academy-stone hover:border-academy-deep bg-transparent text-academy-deep text-left transition-all rounded flex flex-col justify-between h-28 focus:outline-none">
+                            <i class="fa-solid fa-scroll text-lg text-academy-gold"></i>
+                            <span class="text-xs uppercase font-bold tracking-wider block">Letters & Law</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Choose Target Grade Level -->
+                <div class="space-y-2">
+                    <label class="block text-[10px] uppercase font-bold tracking-widest text-academy-charcoal/80">Academic Tier</label>
+                    <select id="schedule-grade" onchange="renderMatrixTimetable()" class="w-full bg-academy-cream border border-academy-stone px-4 py-3 rounded text-xs font-semibold focus:outline-none focus:border-academy-deep">
+                        <option value="9">Junior Fellow (9th Tier)</option>
+                        <option value="11" selected>Senior Fellow (11th Tier)</option>
+                        <option value="12">Venture Scholar (12th Tier)</option>
+                    </select>
+                </div>
+
+                <!-- Dynamic Extra Parameters -->
+                <div class="space-y-3">
+                    <label class="block text-[10px] uppercase font-bold tracking-widest text-academy-charcoal/80">Auxiliary Core Blocks</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 border border-academy-stone rounded cursor-pointer bg-academy-cream/30 hover:bg-academy-cream transition-all">
+                            <input type="checkbox" id="add-capstone" checked onchange="renderMatrixTimetable()" class="w-4 h-4 accent-academy-deep">
+                            <span class="text-xs font-semibold text-academy-charcoal">Venture Incubation Thesis</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Animated Weekly Matrix Schedule (The Grid) -->
+            <div class="lg:col-span-8 space-y-6 reveal-element">
+                <div class="bg-academy-deep text-white border border-academy-gold/20 p-6 sm:p-8 rounded-xl shadow-premium relative overflow-hidden">
+                    <div class="absolute right-0 bottom-0 opacity-[0.03] text-[200px] font-serif pointer-events-none select-none italic font-bold">V</div>
+
+                    <div class="flex justify-between items-start border-b border-white/10 pb-4 mb-6">
+                        <div>
+                            <span class="text-[9px] uppercase font-bold tracking-widest text-academy-gold" id="schedule-badge">STEM ARCHITECTURE</span>
+                            <h3 class="font-serif text-2xl font-bold mt-1" id="schedule-title">Advanced Quantitative Systems</h3>
+                        </div>
+                        <span class="text-xs font-mono border border-academy-gold/30 text-academy-gold px-3 py-1 rounded">Tier <span id="schedule-badge-grade">11</span></span>
+                    </div>
+
+                    <!-- Visual Weekly Timetable Grid -->
+                    <div class="space-y-4">
+                        <span class="text-[9px] uppercase font-bold tracking-widest text-academy-gold block">Current Weekly Academic Flow:</span>
+                        
+                        <div id="timetable-matrix-grid" class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                            <!-- Injected dynamically with animations by Javascript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Auxiliary Analytics Card -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-white border border-academy-stone p-5 rounded-xl shadow-premium">
+                        <span class="block text-[9px] font-bold text-academy-goldDark uppercase tracking-widest mb-1">Weekly Direct Research Lab Hours</span>
+                        <span class="text-2xl font-serif font-bold text-academy-deep" id="hours-display">16 Hours</span>
+                    </div>
+                    <div class="bg-white border border-academy-stone p-5 rounded-xl shadow-premium">
+                        <span class="block text-[9px] font-bold text-academy-goldDark uppercase tracking-widest mb-1">Vanguard Cohort Ratio</span>
+                        <span class="text-2xl font-serif font-bold text-academy-deep">4 Scholars : 1 Doctor</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="assessment-section" class="py-24 bg-academy-stone/30 border-y border-academy-stone w-full relative">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="text-center mb-16 reveal-element">
+                <span class="text-academy-goldDark font-sans uppercase tracking-[0.25em] text-xs font-bold">Appraisal Registry</span>
+                <h2 class="text-4xl font-serif mt-4 text-academy-deep">Private Admissions Appraiser</h2>
+                <p class="text-sm text-academy-charcoal/70 mt-3 font-light">Submit candidate credentials to evaluate entry probability index, and instantly generate custom institutional scrolls.</p>
+            </div>
+
+            <!-- Dynamic Interactive Form Card -->
+            <div id="assessment-container" class="bg-white border border-academy-stone rounded-2xl p-6 sm:p-10 shadow-premium relative transition-all duration-500 reveal-element">
+                
+                <!-- Step-by-Step Interactive Form -->
+                <div id="portal-form-state" class="block">
+                    <div class="flex justify-between items-center border-b border-academy-stone pb-3 mb-6">
+                        <h3 class="font-serif text-lg font-bold text-academy-deep">Scholastic Evaluation Parameters</h3>
+                        <span class="text-[9px] font-mono uppercase tracking-wider text-academy-goldDark" id="assessment-step-indicator">Step 1 of 3</span>
+                    </div>
+
+                    <form id="evaluation-form" onsubmit="triggerScholasticEvaluation(event)" class="space-y-6">
+                        
+                        <!-- Page 1: Personal Coordinates -->
+                        <div id="form-page-1" class="space-y-4">
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold tracking-widest text-academy-charcoal/80 mb-1" for="eval-name">Candidate Full Name</label>
+                                <input type="text" id="eval-name" required class="w-full bg-academy-cream border border-academy-stone px-4 py-3 rounded text-sm focus:outline-none focus:border-academy-deep focus:ring-1 focus:ring-academy-deep transition-all placeholder-academy-stone/80" placeholder="Aurelius Blackwood">
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold tracking-widest text-academy-charcoal/80 mb-1" for="eval-email">Parent/Guardian Work Email</label>
+                                    <input type="email" id="eval-email" required class="w-full bg-academy-cream border border-academy-stone px-4 py-3 rounded text-sm focus:outline-none focus:border-academy-deep focus:ring-1 focus:ring-academy-deep transition-all" placeholder="vance@capital.com">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold tracking-widest text-academy-charcoal/80 mb-1" for="eval-phone">Direct Contact Phone (Optional)</label>
+                                    <input type="tel" id="eval-phone" class="w-full bg-academy-cream border border-academy-stone px-4 py-3 rounded text-sm focus:outline-none focus:border-academy-deep focus:ring-1 focus:ring-academy-deep transition-all" placeholder="+1 (555) 234-9000">
+                                </div>
+                            </div>
+                            <div class="pt-4 flex justify-end">
+                                <button type="button" onclick="navigateAppraiser(2)" class="px-6 py-3 bg-academy-deep text-white font-bold uppercase tracking-wider text-xs rounded premium-btn shadow-premium">Continue to Qualifications</button>
+                            </div>
+                        </div>
+
+                        <!-- Page 2: Scholastic Metrics -->
+                        <div id="form-page-2" class="space-y-4 hidden">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold tracking-widest text-academy-charcoal/80 mb-1">Target Path Selection</label>
+                                    <select id="eval-track" class="w-full bg-academy-cream border border-academy-stone px-4 py-3 rounded text-xs font-semibold focus:outline-none focus:border-academy-deep">
+                                        <option value="stem">STEM & System Engineering</option>
+                                        <option value="humanities">Letters & Classical Jurisprudence</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold tracking-widest text-academy-charcoal/80 mb-1">Current Unweighted GPA</label>
+                                    <select id="eval-gpa" class="w-full bg-academy-cream border border-academy-stone px-4 py-3 rounded text-xs font-semibold focus:outline-none focus:border-academy-deep">
+                                        <option value="4.0">4.0 GPA (Perfect Standings)</option>
+                                        <option value="3.8" selected>3.8 - 3.9 GPA</option>
+                                        <option value="3.5">3.5 - 3.7 GPA</option>
+                                        <option value="3.0">Under 3.5 GPA</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold tracking-widest text-academy-charcoal/80 mb-1">Extracurricular Mastery Area</label>
+                                <select id="eval-extra" class="w-full bg-academy-cream border border-academy-stone px-4 py-3 rounded text-xs font-semibold focus:outline-none focus:border-academy-deep">
+                                    <option value="hardware">Hardware Fabrication & Machine Coding</option>
+                                    <option value="debate">National Policy Debate & Classical Rhetoric</option>
+                                    <option value="arts">Visual Fine Arts & Architectural Design</option>
+                                    <option value="none">Athletics & General Sciences</option>
+                                </select>
+                            </div>
+                            <div class="pt-4 flex justify-between">
+                                <button type="button" onclick="navigateAppraiser(1)" class="px-6 py-3 border border-academy-stone text-academy-deep font-bold uppercase tracking-wider text-xs rounded">Back</button>
+                                <button type="button" onclick="navigateAppraiser(3)" class="px-6 py-3 bg-academy-deep text-white font-bold uppercase tracking-wider text-xs rounded premium-btn shadow-premium">Continue to Essay Prompt</button>
+                            </div>
+                        </div>
+
+                        <!-- Page 3: Analytical Question -->
+                        <div id="form-page-3" class="space-y-4 hidden">
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold tracking-widest text-academy-charcoal/80 mb-1">Describe a structural problem you successfully resolved with vector logic or high rhetorical design.</label>
+                                <textarea id="eval-essay" required rows="3" class="w-full bg-academy-cream border border-academy-stone p-4 rounded text-sm focus:outline-none focus:border-academy-deep focus:ring-1 focus:ring-academy-deep transition-all resize-none" placeholder="We seek to analyze syntax formulation, clarity of sequence, and argumentative structure..."></textarea>
+                            </div>
+                            <div class="pt-4 flex justify-between">
+                                <button type="button" onclick="navigateAppraiser(2)" class="px-6 py-3 border border-academy-stone text-academy-deep font-bold uppercase tracking-wider text-xs rounded">Back</button>
+                                <button type="submit" id="submit-btn" class="px-8 py-3.5 bg-academy-deep text-white font-bold uppercase tracking-wider text-xs rounded premium-btn shadow-premium flex items-center gap-2">
+                                    <span id="btn-text">Submit Registration</span>
+                                    <i id="btn-spinner" class="fa-solid fa-circle-notch fa-spin hidden"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+
+                <!-- Live Evaluation Processing View -->
+                <div id="portal-processing-state" class="hidden flex-col items-center justify-center text-center py-12 space-y-6">
+                    <div class="relative w-24 h-24 flex items-center justify-center">
+                        <div class="absolute inset-0 border-4 border-academy-gold/30 rounded-full"></div>
+                        <div class="absolute inset-0 border-4 border-academy-gold rounded-full border-t-transparent animate-spin"></div>
+                        <i class="fa-solid fa-graduation-cap text-2xl text-academy-deep"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-serif text-2xl font-bold text-academy-deep">Appraisal Matrix Operational</h3>
+                        <p class="text-xs text-academy-charcoal/70 max-w-sm mx-auto mt-2 leading-relaxed">Analyzing syntax sequence, evaluation parameters, cohort ratios, and background qualifications...</p>
+                    </div>
+                </div>
+
+                <!-- Custom acceptance Scroll Output & Wax Seal Simulation -->
+                <div id="portal-success-state" class="hidden flex-col items-center justify-center py-6">
+                    
+                    <!-- Scroll Presentation wrapper -->
+                    <div class="w-full max-w-lg bg-academy-cream border-[3px] border-academy-gold/40 p-8 rounded-lg shadow-gold-glow relative overflow-hidden transition-all duration-700 animate-pulse border-dashed text-center space-y-6">
+                        
+                        <!-- Watermarked Background Emblem -->
+                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] text-[200px] font-serif select-none pointer-events-none italic">V</div>
+
+                        <div class="border-b-2 border-academy-gold/20 pb-4">
+                            <span class="text-[9px] uppercase font-bold tracking-[0.3em] text-academy-gold">Michaelmas Matriculation Board</span>
+                            <h4 class="font-serif text-2xl font-bold text-academy-deep mt-1">Interim Certificate of Evaluation</h4>
+                        </div>
+
+                        <div class="space-y-4 font-serif text-sm leading-relaxed text-academy-charcoal/80 italic text-left">
+                            <p>To the candidate guardian of <span id="success-display-name" class="font-bold text-academy-deep not-italic">Aurelius Blackwood</span>,</p>
+                            <p>Upon active verification of scholastic standards, GPA indicators, and high syntax expressions, the Admissions Panel certifies your candidate’s qualifications to proceed to oral defense hearings.</p>
+                            <p>Proposed Placement: <span id="success-display-track" class="font-bold text-academy-deep not-italic">STEM Track (Senior Fellow)</span>.</p>
+                        </div>
+
+                        <!-- Animated Wax Seal Element -->
+                        <div class="pt-6 relative flex flex-col items-center justify-center">
+                            
+                            <!-- Dynamic Red/Gold Seal -->
+                            <div class="w-16 h-16 rounded-full bg-red-800 border-2 border-academy-gold flex items-center justify-center text-academy-gold shadow-[0_0_20px_rgba(153,27,27,0.4)] relative cursor-pointer group hover:scale-105 transition-transform duration-300">
+                                <span class="font-serif font-bold text-lg">V</span>
+                                <!-- Outer ornamental ring -->
+                                <div class="absolute inset-1 border border-academy-gold/30 rounded-full"></div>
+                            </div>
+                            <span class="text-[8px] font-mono uppercase tracking-widest text-academy-goldDark mt-3">Board Admissions Seal Secured</span>
+                        </div>
+
+                        <div class="border-t border-academy-gold/20 pt-4 text-xs font-mono tracking-widest text-academy-goldDark">
+                            ID: <span id="success-display-id" class="font-bold">VAN-82910-K</span>
+                        </div>
+                    </div>
+
+                    <button onclick="resetAppraiserPortal()" class="mt-8 px-6 py-2 border border-academy-deep text-academy-deep font-bold uppercase tracking-widest text-[10px] rounded hover:bg-academy-deep hover:text-white transition-all">
+                        Reset Panel / Register New Candidate
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="tuition-section" class="py-24 max-w-7xl mx-auto px-6 lg:px-16">
+        <div class="text-center max-w-2xl mx-auto mb-16 reveal-element">
+            <span class="text-academy-goldDark font-sans uppercase tracking-[0.25em] text-xs font-bold">Financial Strategy</span>
+            <h2 class="text-4xl md:text-5xl font-serif mt-4 text-academy-deep leading-tight">Investment Structuring Slider</h2>
+            <p class="text-sm text-academy-charcoal/70 mt-3 font-light">Evaluate financial configurations, day versus full-boarding legacy positions, and merit allocation discounts.</p>
+        </div>
+
+        <div class="bg-white border border-academy-stone rounded-2xl p-6 sm:p-10 shadow-premium grid grid-cols-1 md:grid-cols-12 gap-10 items-center reveal-element">
+            
+            <!-- Inputs block -->
+            <div class="md:col-span-7 space-y-6">
+                <h3 class="font-serif text-xl font-bold text-academy-deep border-b border-academy-stone pb-3">Investment Coordinates</h3>
+                
+                <!-- Plan Toggle -->
+                <div class="space-y-3">
+                    <label class="block text-[10px] uppercase font-bold tracking-widest text-academy-charcoal/80">Plan Allocation</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="border-2 border-academy-deep p-4 rounded cursor-pointer flex items-center justify-between bg-academy-cream" id="plan-day-lbl">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="tuition-plan" value="day" checked onchange="recalculateInvestmentFormula()" class="w-4 h-4 accent-academy-deep">
+                                <span class="text-xs font-semibold text-academy-deep">Day Position</span>
+                            </div>
+                            <span class="text-xs font-mono font-bold text-academy-goldDark">$36,000</span>
+                        </label>
+                        <label class="border border-academy-stone p-4 rounded cursor-pointer flex items-center justify-between" id="plan-boarding-lbl">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="tuition-plan" value="boarding" onchange="recalculateInvestmentFormula()" class="w-4 h-4 accent-academy-deep">
+                                <span class="text-xs font-semibold text-academy-deep">Boarding Legacy</span>
+                            </div>
+                            <span class="text-xs font-mono font-bold text-academy-goldDark">$60,000</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Scholar Merit Rating Slider -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-[10px] uppercase font-bold tracking-widest text-academy-charcoal/80">Projected Performance Rating</label>
+                        <span class="text-xs font-bold text-academy-goldDark" id="slider-gpa-val">3.8 Rating</span>
+                    </div>
+                    <input type="range" id="gpa-tuition-slider" min="3.0" max="4.0" step="0.1" value="3.8" oninput="recalculateInvestmentFormula()" class="w-full h-1 bg-academy-stone rounded-lg appearance-none cursor-pointer accent-academy-deep">
+                    <div class="flex justify-between text-[8px] text-academy-charcoal/50 font-semibold uppercase font-mono">
+                        <span>3.0 (No Allocation)</span>
+                        <span>3.5 (10% Scholarship)</span>
+                        <span>4.0 (30% Max Scholarship)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Output block (Visual Board) -->
+            <div class="md:col-span-5 bg-academy-deep text-white border border-academy-gold/20 p-6 rounded-xl shadow-premium text-center space-y-6">
+                <div>
+                    <span class="text-[9px] uppercase font-bold tracking-widest text-academy-gold block">Bespoke Annual Tuition Index</span>
+                    <span class="text-4xl sm:text-5xl font-serif font-bold text-white block mt-3" id="total-tuition-output">$28,800</span>
+                    <span class="text-[10px] text-academy-gold/80 block mt-1 font-mono" id="saved-savings-badge">Saved $7,200 via Rating</span>
+                </div>
+
+                <div class="border-t border-white/10 pt-6 space-y-4 text-xs font-light text-white/80">
+                    <div class="flex justify-between">
+                        <span>Standard Rate:</span>
+                        <span class="font-bold font-mono text-white" id="out-base-rate">$36,000</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Scholar Allocation:</span>
+                        <span class="font-bold font-mono text-academy-gold" id="out-aid-pct">-20%</span>
+                    </div>
+                    <div class="flex justify-between border-t border-white/10 pt-2 font-semibold">
+                        <span class="text-white">Annual Net:</span>
+                        <span class="text-white font-mono font-bold" id="out-net-due">$28,800</span>
+                    </div>
+                </div>
+
+                <a href="#assessment-section" class="w-full py-4 bg-academy-gold text-academy-deep font-bold uppercase tracking-widest text-xs hover:bg-white hover:text-academy-deep transition-all rounded-sm block shadow-premium">
+                    Initiate Private Review
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Exclusive Footer Trust Matrix -->
+    <footer class="w-full border-t border-academy-stone bg-white py-16">
+        
+        <!-- Trust row -->
+        <div class="max-w-7xl mx-auto px-6 lg:px-16 grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-academy-stone pb-12 mb-12">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-full bg-academy-deep/5 flex items-center justify-center text-academy-deep"><i class="fa-solid fa-graduation-cap"></i></div>
+                <div>
+                    <h4 class="font-serif font-bold text-sm text-academy-deep">Elite Ivy Pipeline</h4>
+                    <p class="text-xs text-academy-charcoal/70 mt-1 font-light">Bespoke placement strategy tracking elite domestic and global institutions directly.</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-full bg-academy-deep/5 flex items-center justify-center text-academy-deep"><i class="fa-solid fa-lock"></i></div>
+                <div>
+                    <h4 class="font-serif font-bold text-sm text-academy-deep">Absolute Portfolio Security</h4>
+                    <p class="text-xs text-academy-charcoal/70 mt-1 font-light">All evaluation responses and parent parameters are restricted under institutional privacy charters.</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-full bg-academy-deep/5 flex items-center justify-center text-academy-deep"><i class="fa-solid fa-building-columns"></i></div>
+                <div>
+                    <h4 class="font-serif font-bold text-sm text-academy-deep">Accredited Pedigree</h4>
+                    <p class="text-xs text-academy-charcoal/70 mt-1 font-light">Recognized secondary credentials ensuring global eligibility transitions.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 lg:px-16 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-academy-deep border border-academy-gold flex items-center justify-center text-academy-gold rounded-sm">
+                    <span class="font-serif font-bold text-sm">V</span>
+                </div>
+                <span class="font-serif text-sm tracking-wide font-semibold text-academy-deep">&copy; 2026 Vanguard Academy. Private Registry, All Rights Reserved.</span>
+            </div>
+            <div class="flex gap-6 text-[10px] uppercase tracking-widest font-bold text-academy-deep/60">
+                <a href="#" class="hover:text-academy-gold">Charter Regulations</a>
+                <a href="#" class="hover:text-academy-gold">Matriculation Office</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // State variables
+        let matrixTrack = 'stem';
+        let isSanctumExpanded = false;
+
+        // High-end Weekly Curriculum Schedule Datasets
+        const scheduleData = {
+            stem: {
+                badge: 'QUANT SYSTEMS CORE',
+                title: 'Automated ML & Deep Quantitative Physics',
+                classes: [
+                    { day: 'Monday', code: 'CS 392', name: 'Machine Learning Matrix', desc: 'Synthesized neural models, matrix gradients, algorithmic feedback loops.' },
+                    { day: 'Tuesday', code: 'MATH 452', name: 'Vector Calculus & Fields', desc: 'Spatially computing vector arrays, higher integrations, field geometry.' },
+                    { day: 'Wednesday', code: 'PHYS 410', name: 'Computational Physics', desc: 'Simulating complex thermodynamic balances, wave mathematics.' },
+                    { day: 'Thursday', code: 'LAW 320', name: 'Sovereign Systems Jurisprudence', desc: 'Analyzing state policy models, autonomous liability parameters.' },
+                    { day: 'Friday', code: 'INC 490', name: 'Venture Incubation Studio', desc: 'Active system validation, prototyping cycles, product architecture.' }
+                ]
+            },
+            humanities: {
+                badge: 'CLASSICAL LETTERS CORE',
+                title: 'Classical Jurisprudence & Epistemic Logic',
+                classes: [
+                    { day: 'Monday', code: 'LAW 405', name: 'Constitutional Syntax', desc: 'Parsing legislative precedents, syntactic structure, debate logic.' },
+                    { day: 'Tuesday', code: 'LIT 382', name: 'Socratic Rhetoric Seminar', desc: 'Formulating complex prose parameters, high-level defense strategies.' },
+                    { day: 'Wednesday', code: 'HIST 450', name: 'Macro-Economic Hegemonies', desc: 'Tracking empire lifespans, resource variables, societal structures.' },
+                    { day: 'Thursday', code: 'PHIL 310', name: 'Classical Epistemology', desc: 'Evaluating Socratic scripts, Aristotelian frameworks, syllogisms.' },
+                    { day: 'Friday', code: 'INC 490', name: 'Venture Incubation Studio', desc: 'Active system validation, prototyping cycles, product architecture.' }
+                ]
+            }
+        };
+
+        // Initialize elements and scroll observer on DOM ready
+        window.addEventListener('DOMContentLoaded', () => {
+            renderMatrixTimetable();
+            recalculateInvestmentFormula();
+            setupInteractive3DTilt();
+            setupScrollRevealObserver();
+            setupScrollMotionParallax();
+            setupRollingBallEngine();
+            
+            // Progress Bar listener
+            window.addEventListener('scroll', () => {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height) * 100;
+                document.getElementById('scroll-progress').style.width = scrolled + '%';
+            });
+        });
+
+        // Rolling Ball and Infinity Transition Engine
+        function setupRollingBallEngine() {
+            const ballContainer = document.getElementById('rolling-ball-container');
+            const ball = document.getElementById('rolling-ball');
+
+            // Scroll-linked sizing and rotation calculations
+            window.addEventListener('scroll', () => {
+                if (isSanctumExpanded) return;
+
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                const scrollHeight = document.documentElement.scrollHeight;
+                const clientHeight = document.documentElement.clientHeight;
+                const scrollRange = scrollHeight - clientHeight;
+
+                let pct = scrollRange > 0 ? scrollTop / scrollRange : 0;
+                pct = Math.max(0, Math.min(1, pct));
+
+                // Ball sizing scales from 12px (10% scale equivalent) at top to 80px (100% scale equivalent) at bottom
+                const minSize = 12;
+                const maxSize = 80;
+                const currentSize = minSize + (pct * (maxSize - minSize));
+
+                // Roll rotation matches vertical scroll travel pixels
+                const deg = (scrollTop * 0.45) % 360;
+
+                ball.style.width = `${currentSize}px`;
+                ball.style.height = `${currentSize}px`;
+                ball.style.transform = `rotate(${deg}deg)`;
+            });
+
+            // Trigger Sanctum Expansion on Click when at bottom
+            ball.addEventListener('click', () => {
+                const isAtBottom = (window.innerHeight + window.pageYOffset) >= (document.documentElement.scrollHeight - 50);
+                if (isAtBottom && !isSanctumExpanded) {
+                    expandSanctum();
+                }
+            });
+
+            // Trigger Sanctum Expansion on Wheel Scroll Down when already at bottom
+            window.addEventListener('wheel', (e) => {
+                if (isSanctumExpanded) return;
+                const isAtBottom = (window.innerHeight + window.pageYOffset) >= (document.documentElement.scrollHeight - 6);
+                if (isAtBottom && e.deltaY > 0) {
+                    expandSanctum();
+                }
+            });
+
+            // Trigger Sanctum Expansion on Touch/Swipe Up when already at bottom
+            let touchStartY = 0;
+            window.addEventListener('touchstart', (e) => {
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+
+            window.addEventListener('touchmove', (e) => {
+                if (isSanctumExpanded) return;
+                const touchEndY = e.touches[0].clientY;
+                const isAtBottom = (window.innerHeight + window.pageYOffset) >= (document.documentElement.scrollHeight - 15);
+                if (isAtBottom && (touchStartY - touchEndY > 35)) {
+                    expandSanctum();
+                }
+            }, { passive: true });
+        }
+
+        function expandSanctum() {
+            isSanctumExpanded = true;
+            document.body.style.overflow = 'hidden'; // Lock scrolling
+            document.getElementById('rolling-ball-container').classList.add('expanded');
+        }
+
+        function collapseSanctum() {
+            isSanctumExpanded = false;
+            document.getElementById('rolling-ball-container').classList.remove('expanded');
+            
+            // Allow circle transition to retract before unlocking scroll interactions
+            setTimeout(() => {
+                document.body.style.overflow = '';
+                
+                // Programmatically scroll upward slightly to prevent instant re-triggering of the bottom boundary
+                const scrollTarget = document.documentElement.scrollHeight - window.innerHeight - 120;
+                window.scrollTo({
+                    top: scrollTarget,
+                    behavior: 'smooth'
+                });
+            }, 800);
+        }
+
+        // 6. Scroll-Linked Motion Logic (Sacred Geometry Drift)
+        function setupScrollMotionParallax() {
+            const parallaxElements = document.querySelectorAll('.parallax-scroll-element');
+            
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                
+                parallaxElements.forEach(el => {
+                    const speed = parseFloat(el.getAttribute('data-speed')) || 0.1;
+                    const rotateSpeed = parseFloat(el.getAttribute('data-rotation')) || 0.05;
+                    
+                    // Translate downward and rotate based on scroll depth
+                    const translateY = scrolled * speed;
+                    const rotateDeg = scrolled * rotateSpeed;
+                    
+                    el.style.transform = `translateY(${translateY}px) rotate(${rotateDeg}deg)`;
+                });
+            });
+        }
+
+        // 1. Interactive Schedule Matrix Controller
+        function setMatrixTrack(track) {
+            matrixTrack = track;
+            
+            // Adjust state button selection styles smoothly
+            const btnStem = document.getElementById('tab-stem');
+            const btnHum = document.getElementById('tab-humanities');
+
+            const activeStyles = 'p-4 border-2 border-academy-deep bg-academy-deep text-academy-cream text-left transition-all rounded flex flex-col justify-between h-28 focus:outline-none shadow-premium';
+            const inactiveStyles = 'p-4 border border-academy-stone hover:border-academy-deep bg-transparent text-academy-deep text-left transition-all rounded flex flex-col justify-between h-28 focus:outline-none';
+
+            if (track === 'stem') {
+                btnStem.className = activeStyles;
+                btnHum.className = inactiveStyles;
+            } else {
+                btnStem.className = inactiveStyles;
+                btnHum.className = activeStyles;
+            }
+
+            renderMatrixTimetable();
+        }
+
+        function renderMatrixTimetable() {
+            const data = scheduleData[matrixTrack];
+            const grade = document.getElementById('schedule-grade').value;
+            const extraEnabled = document.getElementById('add-capstone').checked;
+
+            // Header labels
+            document.getElementById('schedule-badge').innerText = data.badge;
+            document.getElementById('schedule-title').innerText = data.title;
+            document.getElementById('schedule-badge-grade').innerText = grade;
+
+            const grid = document.getElementById('timetable-matrix-grid');
+            
+            // Trigger quick elegant morph fade-out
+            grid.style.opacity = '0';
+            grid.style.transform = 'scale(0.98)';
+
+            setTimeout(() => {
+                grid.innerHTML = '';
+                
+                data.classes.forEach((classItem, idx) => {
+                    const card = document.createElement('div');
+                    card.className = 'schedule-card border border-white/10 bg-white/5 p-4 rounded hover:bg-white/10 transition-all duration-300 transform translate-y-4 opacity-0 flex flex-col justify-between h-56';
+                    
+                    // Modify course if capstone is active on Friday
+                    let name = classItem.name;
+                    let desc = classItem.desc;
+                    if (classItem.day === 'Friday' && !extraEnabled) {
+                        name = "Independent Colloquium Study";
+                        desc = "Self-directed defense preparation, scholar advisement, thesis synthesis panels.";
+                    }
+
+                    card.innerHTML = `
+                        <div>
+                            <div class="flex justify-between items-center border-b border-white/10 pb-2 mb-2">
+                                <span class="text-[9px] font-mono text-academy-gold tracking-widest font-bold uppercase">${classItem.day}</span>
+                                <span class="text-[8px] font-mono text-white/55">${classItem.code}</span>
+                            </div>
+                            <h4 class="font-serif font-bold text-xs text-white">${name}</h4>
+                            <p class="text-[10px] text-white/70 mt-2 leading-relaxed font-light">${desc}</p>
+                        </div>
+                        <span class="block text-[8px] font-mono uppercase tracking-wider text-academy-gold/60 mt-2"><i class="fa-solid fa-clock mr-1"></i> 09:00 - 13:00</span>
+                    `;
+                    grid.appendChild(card);
+                    
+                    // Stagger reveal animations for grid blocks
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, idx * 80);
+                });
+
+                grid.style.opacity = '1';
+                grid.style.transform = 'scale(1)';
+
+                // Update Hours count dynamically
+                const baseHours = matrixTrack === 'stem' ? 12 : 10;
+                const extraHours = extraEnabled ? 4 : 0;
+                document.getElementById('hours-display').innerText = `${baseHours + extraHours} Hours`;
+
+            }, 300);
+        }
+
+        // 2. Interactive Tuition Calculation Strategy
+        function recalculateInvestmentFormula() {
+            const plan = document.querySelector('input[name="tuition-plan"]:checked').value;
+            const rating = parseFloat(document.getElementById('gpa-tuition-slider').value);
+
+            const baseRate = plan === 'day' ? 36000 : 60000;
+            
+            // Dynamic Merit Rating reduction: 3.0 to 3.4 (0%), 3.5 to 3.7 (10%), 3.8 to 3.9 (20%), 4.0 (30%)
+            let discountFactor = 0;
+            if (rating >= 4.0) {
+                discountFactor = 0.30;
+            } else if (rating >= 3.8) {
+                discountFactor = 0.20;
+            } else if (rating >= 3.5) {
+                discountFactor = 0.10;
+            }
+
+            const savings = baseRate * discountFactor;
+            const finalTuition = baseRate - savings;
+
+            // Apply to view coordinates
+            document.getElementById('slider-gpa-val').innerText = `${rating.toFixed(1)} Rating Score`;
+            document.getElementById('total-tuition-output').innerText = `$${finalTuition.toLocaleString()}`;
+            document.getElementById('out-base-rate').innerText = `$${baseRate.toLocaleString()}`;
+            document.getElementById('out-aid-pct').innerText = discountFactor > 0 ? `-${(discountFactor * 100)}%` : '0%';
+            document.getElementById('out-net-due').innerText = `$${finalTuition.toLocaleString()}`;
+
+            // Adjust toggle label outline markers
+            const lblDay = document.getElementById('plan-day-lbl');
+            const lblBoarding = document.getElementById('plan-boarding-lbl');
+
+            if (plan === 'day') {
+                lblDay.className = 'border-2 border-academy-deep p-4 rounded cursor-pointer flex items-center justify-between bg-academy-cream shadow-premium';
+                lblBoarding.className = 'border border-academy-stone p-4 rounded cursor-pointer flex items-center justify-between';
+            } else {
+                lblBoarding.className = 'border-2 border-academy-deep p-4 rounded cursor-pointer flex items-center justify-between bg-academy-cream shadow-premium';
+                lblDay.className = 'border border-academy-stone p-4 rounded cursor-pointer flex items-center justify-between';
+            }
+
+            // Savings sub-label visual
+            const savingsBadge = document.getElementById('saved-savings-badge');
+            if (savings > 0) {
+                savingsBadge.classList.remove('opacity-0');
+                savingsBadge.innerText = `Saved $${savings.toLocaleString()} via Scholar Rating`;
+            } else {
+                savingsBadge.classList.add('opacity-0');
+            }
+        }
+
+        // 3. Admissions Portal Interactive Evaluator Workflow
+        let activeAppraiserPage = 1;
+
+        function navigateAppraiser(page) {
+            // Validate first pages before proceeding
+            if (page === 2 && activeAppraiserPage === 1) {
+                const nameInput = document.getElementById('eval-name');
+                const emailInput = document.getElementById('eval-email');
+                if (!nameInput.value.trim() || !emailInput.checkValidity()) {
+                    nameInput.reportValidity();
+                    emailInput.reportValidity();
+                    return;
+                }
+            }
+
+            if (page === 3 && activeAppraiserPage === 2) {
+                // Secondary check passing smoothly
+            }
+
+            activeAppraiserPage = page;
+            
+            // Smoothly change active DOM visibility
+            document.getElementById('form-page-1').classList.add('hidden');
+            document.getElementById('form-page-2').classList.add('hidden');
+            document.getElementById('form-page-3').classList.add('hidden');
+
+            document.getElementById(`form-page-${page}`).classList.remove('hidden');
+            document.getElementById('assessment-step-indicator').innerText = `Step ${page} of 3`;
+        }
+
+        function triggerScholasticEvaluation(event) {
+            event.preventDefault();
+            
+            const formState = document.getElementById('portal-form-state');
+            const processingState = document.getElementById('portal-processing-state');
+            const successState = document.getElementById('portal-success-state');
+
+            // Toggle processing visible coordinates
+            formState.classList.add('hidden');
+            processingState.classList.remove('hidden');
+
+            // Mock rigorous computational review sequence (2.5 seconds)
+            setTimeout(() => {
+                processingState.classList.add('hidden');
+                successState.classList.remove('hidden');
+                successState.classList.add('flex');
+
+                // Map results data values dynamically
+                const name = document.getElementById('eval-name').value;
+                const trackVal = document.getElementById('eval-track').value;
+                const trackTitle = trackVal === 'stem' ? 'STEM & Systems Engineering' : 'Letters & Classical Jurisprudence';
+
+                document.getElementById('success-display-name').innerText = name;
+                document.getElementById('success-display-track').innerText = `${trackTitle} (Fellow Status)`;
+                
+                // Random authentic institutional reference ID generator
+                const randomId = "VAN-" + Math.floor(10000 + Math.random() * 90000) + "-MK";
+                document.getElementById('success-display-id').innerText = randomId;
+
+            }, 2500);
+        }
+
+        function resetAppraiserPortal() {
+            document.getElementById('evaluation-form').reset();
+            activeAppraiserPage = 1;
+            
+            // Switch display visibility coordinates
+            document.getElementById('portal-success-state').classList.add('hidden');
+            document.getElementById('portal-success-state').classList.remove('flex');
+            document.getElementById('portal-form-state').classList.remove('hidden');
+            
+            navigateAppraiser(1);
+        }
+
+        // 4. Elite 3D Cursor Parallax Tilt (Vector translation)
+        function setupInteractive3DTilt() {
+            const tiltCard = document.getElementById('tilt-box');
+            if (!tiltCard) return;
+
+            tiltCard.addEventListener('mousemove', (e) => {
+                const rect = tiltCard.getBoundingClientRect();
+                const x = e.clientX - rect.left; // x coordinate inside the element
+                const y = e.clientY - rect.top;  // y coordinate inside the element
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                // Maximum tilt degrees
+                const maxTilt = 10;
+                
+                const rotateX = ((centerY - y) / centerY) * maxTilt;
+                const rotateY = ((x - centerX) / centerX) * maxTilt;
+                
+                tiltCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+
+            tiltCard.addEventListener('mouseleave', () => {
+                tiltCard.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+            });
+        }
+
+        // 5. Scroll Reveal Observer Interface
+        function setupScrollRevealObserver() {
+            const revealElements = document.querySelectorAll('.reveal-element');
+            
+            const observerOptions = {
+                root: null,
+                threshold: 0.1, // Trigger when 10% of element is visible
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const revealObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        // Stop observing once revealed
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            revealElements.forEach(element => {
+                revealObserver.observe(element);
+            });
+        }
+    </script>
+</body>
+</html>
